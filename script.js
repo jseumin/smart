@@ -51,7 +51,7 @@ btnLogin.addEventListener('click', handleLogin);
    2. 데이터 추가 (C) 및 조회 (R) 연동
    ========================================================================== */
 
-// 식재료 추가 함수 (★ 하단 iframe에 구글 시트를 고정 출력하는 로직 반영)
+// 식재료 추가 함수 (★ 하단 iframe에 구글 시트를 고정 출력하는 로직)
 async function addFoodItem() {
     const nameInput = document.getElementById('food-name');
     const qtyInput = document.getElementById('food-qty');
@@ -62,7 +62,7 @@ async function addFoodItem() {
     const expiryDate = expiryInput.value;
 
     if (!name || !expiryDate) {
-        alert("식재료 이름 and 소비기한을 입력해주세요.");
+        alert("식재료 이름과 소비기한을 입력해주세요.");
         return;
     }
 
@@ -74,7 +74,6 @@ async function addFoodItem() {
     };
 
     try {
-        // UI 즉시 반응을 위해 '추가 중...' 표시 처리 생략 (자연스러운 백그라운드 동기화 타겟)
         const response = await fetch(MAKE_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -88,12 +87,12 @@ async function addFoodItem() {
                 const sheetIframe = document.getElementById('sheet-iframe');
                 if (sheetIframe) {
                     sheetIframe.src = data.sheetUrl; // iframe 주소를 구글 시트 링크로 변경
-                    sheetIframe.style.display = 'block'; // 숨겨져 있던 iframe을 화면에 보이도록 전환
+                    sheetIframe.style.display = 'block'; // 숨겨져 있던 iframe을 표시
                 }
             }
         }
 
-        // 입력 폼 초기화 (수량은 기본값인 1로 설정)
+        // 입력 폼 초기화
         nameInput.value = "";
         qtyInput.value = 1;
         expiryInput.value = "";
@@ -105,7 +104,7 @@ async function addFoodItem() {
     }
 }
 
-// 식재료 조회 함수 (5초 자동 동기화 대응)
+// 식재료 조회 함수 (★ undefined 데이터 오염 방지 가드 코드 추가)
 async function fetchFoodList() {
     if (!userEmail) return;
 
@@ -114,6 +113,12 @@ async function fetchFoodList() {
         if (!response.ok) throw new Error("네트워크 응답 오류");
         
         const data = await response.json();
+        
+        // 💡 만약 Make에서 데이터 목록이 아니라 sheetUrl 응답만 넘어왔다면, 리스트 렌더링을 스킵하여 안전하게 가드합니다.
+        if (data && data.sheetUrl && !data.items) {
+            return; 
+        }
+
         foodItems = data.items || [];
         renderFoodList(foodItems);
     } catch (error) {
@@ -135,9 +140,12 @@ btnAdd.addEventListener('click', addFoodItem);
 function renderFoodList(items) {
     foodList.innerHTML = "";
     
+    // 안전한 배열 검사 추가
+    if (!Array.isArray(items)) return;
+
     // 실시간 검색어 필터링 적용
     const keyword = searchInput.value.toLowerCase().trim();
-    const filteredItems = items.filter(item => item.name.toLowerCase().includes(keyword));
+    const filteredItems = items.filter(item => item && item.name && item.name.toLowerCase().includes(keyword));
 
     if (filteredItems.length === 0) {
         foodList.innerHTML = `<div class="loading">등록된 식재료가 없거나 검색 결과가 없습니다.</div>`;
@@ -148,10 +156,8 @@ function renderFoodList(items) {
         const card = document.createElement('div');
         card.classList.add('food-item');
 
-        // D-Day 일수 계산
         const dday = calculateDDay(item.expiryDate);
         
-        // 소비기한에 따른 카드 스타일 분류 기법 적용
         if (dday <= 3) {
             card.classList.add('dday-danger');
         } else if (dday <= 7) {
@@ -160,7 +166,6 @@ function renderFoodList(items) {
             card.classList.add('dday-safe');
         }
 
-        // D-Day 출력 텍스트 포맷팅
         let ddayText = `D-${dday}`;
         if (dday === 0) ddayText = "D-Day";
         if (dday < 0) ddayText = `D+${Math.abs(dday)} (기한 지남)`;
@@ -180,7 +185,7 @@ function renderFoodList(items) {
 
 function calculateDDay(expiryDateString) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // 날짜 비교를 위해 시간 정규화
+    today.setHours(0, 0, 0, 0);
     const expiry = new Date(expiryDateString);
     expiry.setHours(0, 0, 0, 0);
 
@@ -188,8 +193,8 @@ function calculateDDay(expiryDateString) {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
-// XSS 방지를 위한 텍스트 이스케이프 함수
 function escapeHtml(text) {
+    if (!text) return "";
     return text.toString()
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
@@ -198,5 +203,4 @@ function escapeHtml(text) {
         .replace(/'/g, "&#039;");
 }
 
-// 검색어 입력 시 즉시 렌더링 필터 동작
 searchInput.addEventListener('input', () => renderFoodList(foodItems));

@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodManager - 식재료 관리</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <section id="auth-screen" class="screen active">
+            <h2>FoodManager</h2>
+            <p class="subtitle">서비스 이용을 위해 이메일을 입력하세요.</p>
+            <div class="input-group">
+                <input type="email" id="user-email" placeholder="example@email.com" required>
+                <button id="btn-login">입장하기</button>
+            </div>
+        </section>
 
+        <section id="main-screen" class="screen">
+            <header>
+                <h2>내 냉장고 관리</h2>
+                <span id="display-email" class="user-badge"></span>
+            </header>
+
+            <div class="card form-card">
+                <h3>새 식재료 추가</h3>
+                <div class="form-group">
+                    <input type="text" id="food-name" placeholder="식재료 이름">
+                    <input type="number" id="food-qty" value="1" min="1" placeholder="수량">
+                </div>
+                <div class="form-group">
+                    <input type="date" id="food-expiry">
+                    <button id="btn-add">추가</button>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="식재료 검색...">
+            </div>
+
+            <div id="food-list" class="food-list">
+                <div class="loading">데이터를 불러오는 중입니다...</div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

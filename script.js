@@ -51,7 +51,7 @@ btnLogin.addEventListener('click', handleLogin);
    2. 데이터 추가 (C) 및 조회 (R) 연동
    ========================================================================== */
 
-// 식재료 추가 함수 (★ Make가 돌려주는 구글 시트 URL 수신 및 새 창 열기 로직 반영)
+// 식재료 추가 함수 (★ 하단 iframe에 구글 시트를 고정 출력하는 로직 반영)
 async function addFoodItem() {
     const nameInput = document.getElementById('food-name');
     const qtyInput = document.getElementById('food-qty');
@@ -62,7 +62,7 @@ async function addFoodItem() {
     const expiryDate = expiryInput.value;
 
     if (!name || !expiryDate) {
-        alert("식재료 이름과 소비기한을 입력해주세요.");
+        alert("식재료 이름 and 소비기한을 입력해주세요.");
         return;
     }
 
@@ -81,11 +81,15 @@ async function addFoodItem() {
             body: JSON.stringify(payload)
         });
 
-        // 💡 Make 응답에서 구글 시트 주소(sheetUrl)를 파싱하여 새 창으로 띄우기
+        // 💡 Make 응답에서 구글 시트 주소(sheetUrl)를 받아와 웹 화면 하단 iframe에 노출
         if (response.ok) {
             const data = await response.json();
             if (data && data.sheetUrl) {
-                window.open(data.sheetUrl, '_blank'); // 주소를 받아오면 브라우저 새 탭으로 즉시 띄움
+                const sheetIframe = document.getElementById('sheet-iframe');
+                if (sheetIframe) {
+                    sheetIframe.src = data.sheetUrl; // iframe 주소를 구글 시트 링크로 변경
+                    sheetIframe.style.display = 'block'; // 숨겨져 있던 iframe을 화면에 보이도록 전환
+                }
             }
         }
 

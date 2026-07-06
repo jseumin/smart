@@ -1,5 +1,5 @@
 // ⚠️ 발급받은 Make.com Webhook URL을 이곳에 적어주세요.
-const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/6rwujtxbsw81lkztdp1qkrhn9saw4piz';
+const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/mloqmpyisn1i9nvoc4yr9ku7hu9jp1to';
 
 let userEmail = "";
 let foodItems = [];

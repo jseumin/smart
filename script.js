@@ -74,12 +74,25 @@ async function addFoodItem() {
     };
 
     try {
-        // UI 즉시 반응을 위해 '추가 중...' 표시 처리 생략 (자연스러운 백그라운드 동기화 타겟)
-        await fetch(MAKE_WEBHOOK_URL, {
+        // 1. Make 웹훅으로 데이터를 보내고 응답(response)을 받습니다.
+        const response = await fetch(MAKE_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
+
+        // 2. ★ 추가된 부분: Make가 돌려준 JSON 데이터(sheetUrl)를 파싱합니다.
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.sheetUrl) {
+                // 3. 받아온 주소로 웹사이트 화면에 링크 버튼을 만들어주거나 새 창으로 띄웁니다.
+                // 아래 코드는 구글 시트 주소를 받아오자마자 브라우저 새 탭으로 바로 열어주는 코드입니다.
+                window.open(data.sheetUrl, '_blank'); 
+                
+                // 만약 화면에 고정된 버튼 링크를 바꾸고 싶다면 아래 주석을 풀어서 쓰세요.
+                // document.getElementById('go-to-sheet-btn').href = data.sheetUrl;
+            }
+        }
 
         // 입력 폼 초기화 (수량은 기본값인 1로 설정)
         nameInput.value = "";
@@ -92,7 +105,6 @@ async function addFoodItem() {
         console.error("데이터 저장 실패:", error);
     }
 }
-
 // 식재료 조회 함수 (5초 자동 동기화 대응)
 async function fetchFoodList() {
     if (!userEmail) return;

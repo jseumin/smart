@@ -1,1 +1,127 @@
+/* 기본 초기화 및 반응형 레이아웃 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+}
 
+body {
+    background-color: #f5f7fb;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px 10px;
+}
+
+/* 최대 너비 600px 제한 및 모바일 반응형 */
+.app-container {
+    width: 100%;
+    max-width: 600px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+    min-height: 500px;
+}
+
+/* SPA 화면 전환 공통 */
+.screen {
+    display: none;
+}
+.screen.active {
+    display: block;
+}
+
+/* 타이포그래피 */
+h2 { color: #1e293b; margin-bottom: 8px; font-size: 1.5rem; }
+h3 { color: #475569; margin-bottom: 12px; font-size: 1.1rem; }
+.subtitle { color: #94a3b8; font-size: 0.9rem; margin-bottom: 20px; }
+
+/* 공통 UI 요소 */
+.input-group, .form-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.form-group input { flex: 1; }
+
+input, button {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s;
+}
+input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+
+button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    white-space: nowrap;
+}
+button:hover { background-color: #2563eb; }
+
+/* 헤더 및 유저 정보 */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+.user-badge {
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* 카드형 UI */
+.card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+.form-card { background: #f8fafc; border-style: dashed; }
+
+.search-bar input { width: 100%; margin-bottom: 16px; }
+
+/* 식재료 카드 목록 */
+.food-list { display: flex; flex-direction: column; gap: 12px; }
+
+.food-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    background: #fff;
+    border-left: 6px solid #cbd5e1; /* 기본 색상 */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    border-top: 1px solid #f1f5f9;
+    border-right: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* 소비기한별 디데이 색상 강조 */
+.food-item.dday-danger { border-left-color: #ef4444; background-color: #fef2f2; } /* 오늘 포함 지남 또는 3일 이내 */
+.food-item.dday-warning { border-left-color: #f59e0b; background-color: #fffbeb; } /* 7일 이내 */
+.food-item.dday-safe { border-left-color: #10b981; background-color: #f0fdf4; }    /* 여유 있음 */
+
+.food-info .name { font-weight: bold; color: #1e293b; display: block; margin-bottom: 4px; }
+.food-info .details { font-size: 0.85rem; color: #64748b; }
+.food-status { text-align: right; }
+.food-status .dday { font-weight: bold; display: block; font-size: 1.05rem; }
+
+.loading { text-align: center; color: #94a3b8; padding: 40px 0; }

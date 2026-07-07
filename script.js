@@ -1,5 +1,5 @@
 // ⚠️ 발급받은 Make.com Webhook URL을 이곳에 적어주세요.
-const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/en4c1jki5v3ne4meyb7vuxwl0rv6t89o';
+const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/oagxdnuxxi6eclwj2fjnfsvbhwfvpq49';
 
 let userEmail = "";
 let foodItems = [];
@@ -33,7 +33,7 @@ function handleLogin() {
     authScreen.classList.remove('active');
     mainScreen.classList.add('active');
 
-    // 첫 데이터 조회 및 자동 동기화 시작 (필요에 따라 5000 단위를 늘려보세요)
+    // 첫 데이터 조회 및 5초 주기 자동 동기화 시작
     fetchFoodList();
     syncInterval = setInterval(fetchFoodList, 5000);
 }
@@ -51,7 +51,7 @@ btnLogin.addEventListener('click', handleLogin);
    2. 데이터 추가 (C) 및 조회 (R) 연동
    ========================================================================== */
 
-// 식재료 추가 함수
+// 식재료 추가 함수 (★ 하단 iframe에 구글 시트를 고정 출력하는 로직 반영)
 async function addFoodItem() {
     const nameInput = document.getElementById('food-name');
     const qtyInput = document.getElementById('food-qty');
@@ -62,7 +62,7 @@ async function addFoodItem() {
     const expiryDate = expiryInput.value;
 
     if (!name || !expiryDate) {
-        alert("식재료 이름과 소비기한을 입력해주세요.");
+        alert("식재료 이름 and 소비기한을 입력해주세요.");
         return;
     }
 
@@ -74,11 +74,24 @@ async function addFoodItem() {
     };
 
     try {
-        await fetch(MAKE_WEBHOOK_URL, {
+        // UI 즉시 반응을 위해 '추가 중...' 표시 처리 생략 (자연스러운 백그라운드 동기화 타겟)
+        const response = await fetch(MAKE_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
+
+        // 💡 Make 응답에서 구글 시트 주소(sheetUrl)를 받아와 웹 화면 하단 iframe에 노출
+        if (response.ok) {
+            const data = await response.json();
+            if (data && data.sheetUrl) {
+                const sheetIframe = document.getElementById('sheet-iframe');
+                if (sheetIframe) {
+                    sheetIframe.src = data.sheetUrl; // iframe 주소를 구글 시트 링크로 변경
+                    sheetIframe.style.display = 'block'; // 숨겨져 있던 iframe을 화면에 보이도록 전환
+                }
+            }
+        }
 
         // 입력 폼 초기화 (수량은 기본값인 1로 설정)
         nameInput.value = "";
@@ -92,20 +105,12 @@ async function addFoodItem() {
     }
 }
 
-// 식재료 조회 함수 (★ 매번 새로운 데이터를 가져오도록 캐시 무효화 적용)
+// 식재료 조회 함수 (5초 자동 동기화 대응)
 async function fetchFoodList() {
     if (!userEmail) return;
 
     try {
-        // 주소 뒤에 매번 바뀌는 타임스탬프(_ts)를 붙여 브라우저 캐싱을 방지합니다.
-        const timestamp = new Date().getTime();
-        const url = `${MAKE_WEBHOOK_URL}?email=${encodeURIComponent(userEmail)}&action=read&_ts=${timestamp}`;
-        
-        const response = await fetch(url, {
-            method: 'GET',
-            cache: 'no-store' // 이중 안전장치: 브라우저에게 캐시 저장/사용 금지 명령
-        });
-        
+        const response = await fetch(`${MAKE_WEBHOOK_URL}?email=${encodeURIComponent(userEmail)}&action=read`);
         if (!response.ok) throw new Error("네트워크 응답 오류");
         
         const data = await response.json();

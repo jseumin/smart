@@ -35,7 +35,7 @@ function handleLogin() {
 
     // 첫 데이터 조회 및 5초 주기 자동 동기화 시작
     fetchFoodList();
-    syncInterval = setInterval(fetchFoodList, 5000);
+    syncInterval = setInterval(fetchFoodList, 60000);
 }
 
 function validateEmail(email) {
